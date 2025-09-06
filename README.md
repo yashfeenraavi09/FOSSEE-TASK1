@@ -16,7 +16,10 @@ Key UI/UX improvements made in this project:
 - **Mobile-Friendly Buttons** : larger tap areas and touch-optimized interactions.  
 - **Dark Mode Toggle (Optional)** : added a switch for users who prefer dark mode.  
 - **Smooth Hover Effects** : subtle transitions on buttons and cards to give the interface a polished, interactive feel.  
-- **Performance Optimizations** : compressed images, system fonts, and lightweight CSS to ensure fast loading.  
+- **Performance Optimizations** : compressed images, system fonts, and lightweight CSS to ensure fast loading.
+
+## System Flow
+![ModelsTable_Diagram](https://github.com/user-attachments/assets/f640f022-2948-4228-a3fa-183a75564bc4)
 
 ## Final UI Showcase
 Screenshots of the redesigned interface:
