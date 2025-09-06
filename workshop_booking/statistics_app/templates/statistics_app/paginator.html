@@ -1,0 +1,59 @@
+<ul class="pagination justify-content-center">
+    {% if objects.has_previous %}
+    <li class="page-item">
+        <a class="page-link" href="?page=1{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.workshop_type %}&workshop_type={{ request.GET.workshop_type }}{% endif %}{% if request.GET.show_workshops %}&show_workshops={{ request.GET.show_workshops }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" aria-label="First">
+            <span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
+        </a>
+    </li>
+    {% endif %}
+
+    {% for n in objects.paginator.page_range %}
+        {% if objects.number == n %}
+            <li class="page-item active">
+                <span class="page-link">{{ n }}</span>
+            </li>
+        {% elif n > objects.number|add:'-5' and n < objects.number|add:'5' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ n }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.workshop_type %}&workshop_type={{ request.GET.workshop_type }}{% endif %}{% if request.GET.show_workshops %}&show_workshops={{ request.GET.show_workshops }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ n }}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+
+    {% if objects.has_next %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ objects.paginator.num_pages }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}{% if request.GET.state %}&state={{ request.GET.state }}{% endif %}{% if request.GET.workshop_type %}&workshop_type={{ request.GET.workshop_type }}{% endif %}{% if request.GET.show_workshops %}&show_workshops={{ request.GET.show_workshops }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" aria-label="Last">
+            <span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+
+<style>
+    .pagination {
+        margin-top: 1rem;
+    }
+    .page-link {
+        color: #e6851f;
+        border: 1px solid #e6851f;
+        margin: 0 3px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .page-link:hover {
+        background: #e6851f;
+        color: #fff;
+        border-color: #cf6d10;
+    }
+    .page-item.active .page-link {
+        background: #e6851f !important;
+        border-color: #e6851f !important;
+        color: #fff !important;
+        font-weight: 600;
+    }
+    .page-item.disabled .page-link {
+        color: #aaa !important;
+        background: #f9f9f9 !important;
+        border-color: #ddd !important;
+    }
+</style>

@@ -1,0 +1,276 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %} Statistics {% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: #ffffff !important;
+    }
+
+    /* Sidebar filters */
+    .card {
+        border: 1px solid #f0f0f0;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .card-header {
+        background: #fff8f2;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .card-header h3 {
+        color: #e6851f;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Outline button (Clear) */
+    .btn-outline-info {
+        border-color: #e6851f;
+        color: #e6851f;
+        font-weight: 600;
+    }
+    .btn-outline-info:hover,
+    .btn-outline-info:focus {
+        background: #e6851f;
+        color: #fff;
+        border-color: #cf6d10;
+        box-shadow: 0 0 0 0.2rem rgba(230,133,31,.25);
+    }
+
+    /* Success button (View) */
+    .btn-success {
+        background: #e6851f;
+        border-color: #e6851f;
+        font-weight: 600;
+    }
+    .btn-success:hover,
+    .btn-success:focus {
+        background: #cf6d10;
+        border-color: #cf6d10;
+        box-shadow: 0 0 0 0.2rem rgba(230,133,31,.25);
+    }
+
+    /* Info button (Download, charts) */
+    .btn-info {
+        background: #fff;
+        color: #e6851f;
+        border: 2px solid #e6851f;
+        font-weight: 600;
+        transition: 0.3s ease;
+    }
+    .btn-info:hover,
+    .btn-info:focus {
+        background: #e6851f;
+        color: #fff;
+        border-color: #cf6d10;
+        box-shadow: 0 0 0 0.2rem rgba(230,133,31,.25);
+    }
+
+    /* Table */
+    table {
+        margin-top: 1rem;
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    thead {
+        background: #fff8f2;
+    }
+    thead th {
+        color: #e6851f;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+    tbody tr:hover {
+        background: #fff4e7;
+        transition: 0.3s ease;
+    }
+
+    /* Chart modal */
+    #dialog {
+        display: none;
+    }
+    .ui-dialog-titlebar {
+        background: #e6851f !important;
+        color: #fff !important;
+        border: none !important;
+    }
+    .ui-dialog-titlebar-close {
+        background: #fff !important;
+        border: none !important;
+        border-radius: 50% !important;
+    }
+    .ui-dialog-titlebar-close:hover {
+        background: #cf6d10 !important;
+        color: #fff !important;
+    }
+
+    /* 🔥 Custom pagination */
+    .pagination {
+        margin: 1rem 0;
+    }
+    .page-link {
+        color: #e6851f;
+        border: 1px solid #e6851f;
+        margin: 0 3px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .page-link:hover {
+        background: #e6851f;
+        color: #fff;
+    }
+    .page-item.active .page-link {
+        background: #e6851f !important;
+        border-color: #e6851f !important;
+        color: #fff !important;
+        font-weight: 600;
+    }
+    .page-item.disabled .page-link {
+        color: #aaa;
+        border-color: #ddd;
+        background: #f9f9f9;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Filters -->
+        <div class="col-md-3 mb-4">
+            <form method="GET">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><u>Filters</u></h3>
+                            <a href="{% url 'statistics_app:public' %}" class="btn btn-outline-info btn-sm">
+                                <i class="fa fa-times"></i> Clear
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div>From date: {{form.from_date}}</div>
+                        <div>To date: {{form.to_date}}</div>
+                        <div>Workshop: {{form.workshop_type}}</div>
+                        <div>State: {{form.state}}</div>
+                        <div>{{form.sort.help_text}}: {{form.sort}}</div>
+                        {% if request.user.is_authenticated %}
+                        <div>{{form.show_workshops.help_text}}: {{form.show_workshops}}</div>
+                        {% endif %}
+                        <br>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-eye"></i>&nbsp;View
+                            </button>
+                            <button type="submit" class="btn btn-info" name="download" value="download">
+                                <i class="fa fa-download"></i>&nbsp;Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Statistics Table & Charts -->
+        <div class="col">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-3 text-right">
+                    <button class="btn btn-info w-100" id="state_graph">
+                        <i class="fa fa-bar-chart"></i>&nbsp; State Chart
+                    </button>
+                </div>
+                <div class="col-md-3 text-right">
+                    <button class="btn btn-info w-100" id="type_graph">
+                        <i class="fa fa-bar-chart"></i>&nbsp; Workshop Chart
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Coordinator Name</th>
+                            <th>Institute Name</th>
+                            <th>Instructor Name</th>
+                            <th>Workshop Name</th>
+                            <th>Workshop Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% csrf_token %}
+                        {% for workshop in objects %}
+                        <tr>
+                            <td>{{ forloop.counter0|add:objects.start_index }}</td>
+                            <td>{{ workshop.coordinator.get_full_name | capfirst }}</td>
+                            <td>{{ workshop.coordinator.profile.institute | capfirst }}</td>
+                            <td>{{ workshop.instructor.get_full_name | capfirst }}</td>
+                            <td>{{ workshop.workshop_type.name }}</td>
+                            <td>{{ workshop.date | date }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No workshops found for the selected filters.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include "statistics_app/paginator.html" %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Charts -->
+<div id="dialog" title="Workshops Statistics">
+    <canvas id="myChart"></canvas>
+</div>
+
+<script type="text/javascript">
+    var state_labels = {{ws_states|safe}};
+    var state_data = {{ws_count|safe}};
+    var type_labels = {{ws_type|safe}};
+    var type_data = {{ws_type_count|safe}};
+    var chart;
+
+    $("#state_graph").on("click", function() {
+        show_graph(state_labels, state_data, "State wise Workshops");
+    });
+
+    $("#type_graph").on("click", function() {
+        show_graph(type_labels, type_data, "Type wise Workshops");
+    });
+
+    function show_graph(labels, data, graph_name) {
+        var ctx = document.getElementById('myChart').getContext('2d');
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    label: graph_name,
+                    backgroundColor: '#e6851f',
+                    borderColor: '#cf6d10',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    yAxes: [{ ticks: { beginAtZero: true } }]
+                }
+            }
+        });
+        $("#dialog").dialog({
+            width: 900,
+            height: 500
+        });
+    }
+</script>
+{% endblock %}

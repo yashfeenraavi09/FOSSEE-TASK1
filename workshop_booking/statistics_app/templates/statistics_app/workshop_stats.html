@@ -1,0 +1,237 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %}
+ Workshop Statistics
+{% endblock %}
+
+{% block extra %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
+<!-- Google GeoChart -->
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+
+<style>
+    body {
+        background: #fff !important;
+    }
+
+    fieldset {
+        border: none;
+        margin-bottom: 1rem;
+    }
+
+    label {
+        margin-right: 12px;
+        font-weight: 600;
+        color: #e6851f;
+    }
+
+    /* Buttons */
+    .btn-warning {
+        background: #e6851f;
+        border: none;
+        font-weight: 600;
+    }
+    .btn-warning:hover {
+        background: #cf6d10;
+    }
+    .btn-info {
+        background: #fff;
+        border: 2px solid #e6851f;
+        color: #e6851f;
+        font-weight: 600;
+    }
+    .btn-info:hover {
+        background: #e6851f;
+        color: #fff;
+    }
+
+    /* Table */
+    table.table {
+        margin-top: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    table thead {
+        background: #fff8f2;
+    }
+    table thead th {
+        color: #e6851f;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    table tbody tr:hover {
+        background: #fff4e7;
+    }
+
+    /* Pagination */
+    .pagination .page-item .page-link {
+        border: 1px solid #e6851f;
+        color: #e6851f;
+    }
+    .pagination .page-item.active .page-link {
+        background: #e6851f;
+        border-color: #e6851f;
+        color: #fff;
+    }
+    .pagination .page-link:hover {
+        background: #e6851f;
+        color: #fff;
+    }
+
+    /* Chart container */
+    #myChartPie {
+        margin-top: 2rem;
+    }
+
+    #visualization {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+    }
+</style>
+
+<script>
+    var dateToday = new Date();
+    var upto = new Date();
+
+    dateToday.setDate(dateToday.getDate() - 1);
+    upto.setFullYear(dateToday.getFullYear() + 1);
+
+    $(function() {
+        from = $("#from").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            maxDate: dateToday,
+            dateFormat: "yy-mm-dd"
+        }).on("change", function() {
+            to.datepicker("option", "minDate", getDate(this));
+        });
+
+        to = $("#to").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            minDate: dateToday,
+            maxDate: upto,
+            dateFormat: "yy-mm-dd"
+        }).on("change", function() {
+            from.datepicker("option", "maxDate", getDate(this));
+        });
+
+        function getDate(element) {
+            var date;
+            try {
+                date = $.datepicker.parseDate("yy-mm-dd", element.value);
+            } catch (error) {
+                date = null;
+            }
+            return date;
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <fieldset data-mini="true">
+                <label for="radio-1">Monthly Count</label>
+                <input type="radio" name="radio-1" id="radio-1" value="NWPM">
+                <label for="radio-2">Overall Count</label>
+                <input type="radio" name="radio-1" id="radio-2" value="OWC">
+                <label for="radio-3">India Map</label>
+                <input type="radio" name="radio-1" id="radio-3" value="MOIN">
+            </fieldset>
+        </div>
+
+        {% if show_workshop_stats %}
+        <div class="col-md-6 text-right">
+            <form method="POST" class="d-inline-block">
+                {% csrf_token %}
+                <label for="from">From</label>
+                <input type="text" id="from" name="from" class="form-control d-inline-block w-auto">
+                <label for="to">To</label>
+                <input type="text" id="to" name="to" class="form-control d-inline-block w-auto">
+                <button class="btn btn-warning btn-sm" type="submit" name="Download" value="Download">Download</button>
+                <button class="btn btn-info btn-sm" type="submit" name="View" value="View">View</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Workshops Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Coordinator Name</th>
+                    <th>Institute</th>
+                    <th>Instructor</th>
+                    <th>Workshop</th>
+                    <th>Date</th>
+                    <th>Proposed By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for workshop in upcoming_workshops %}
+                    <tr>
+                        {% if workshop.proposed_workshop_date %}
+                            <td>{{ workshop.proposed_workshop_coordinator.get_full_name }}</td>
+                            <td>{{ workshop.proposed_workshop_coordinator.profile.institute }}</td>
+                            <td>{{ workshop.proposed_workshop_instructor.get_full_name }}</td>
+                            <td>{{ workshop.proposed_workshop_title.workshoptype_name }}</td>
+                            <td>{{ workshop.proposed_workshop_date|date }}</td>
+                            <td>Coordinator</td>
+                        {% else %}
+                            <td>{{ workshop.requested_workshop_coordinator.get_full_name }}</td>
+                            <td>{{ workshop.requested_workshop_coordinator.profile.institute }}</td>
+                            <td>{{ workshop.requested_workshop_instructor.get_full_name }}</td>
+                            <td>{{ workshop.requested_workshop_title.workshoptype_name }}</td>
+                            <td>{{ workshop.requested_workshop_date|date }}</td>
+                            <td>Instructor</td>
+                        {% endif %}
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted">No workshops found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if upcoming_workshops.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ upcoming_workshops.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ upcoming_workshops.number }} of {{ upcoming_workshops.paginator.num_pages }}</span>
+            </li>
+            {% if upcoming_workshops.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ upcoming_workshops.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+        <div class="alert alert-warning mt-4">
+            <h5>Permission to view upcoming workshops is disabled in settings.py</h5>
+        </div>
+    {% endif %}
+
+    <!-- Chart Area -->
+    <canvas id="myChartPie"></canvas>
+    <div id="visualization" style="width: 400px; height: 300px; display:none; margin: 0 auto;"></div>
+</div>
+{% endblock %}

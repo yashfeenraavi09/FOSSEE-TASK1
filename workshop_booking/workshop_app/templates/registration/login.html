@@ -1,0 +1,137 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: #ffffff; 
+    }
+
+    .login-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        padding: 2rem 2.5rem;
+        color: #ff9933;
+        width: 100%;
+        max-width: 420px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column; 
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #000000;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group input.form-control {
+        width: 100%; 
+        border-radius: 0.75rem;
+        border: 1px solid #ccc;
+        padding: 0.75rem 1rem;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .form-group input.form-control:focus {
+        border-color: #ff9933;
+        box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.3);
+        outline: none;
+    }
+
+    .login-card .btn-primary {
+        background: #e6851f;
+        border: none;
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .login-card .btn-primary:hover {
+        background: #ff9933;
+        color: #fff;
+    }
+
+    .login-card .dropdown-item {
+        color: #ff7f50;
+        font-weight: 500;
+        transition: color 0.3s, text-decoration 0.3s;
+    }
+
+    .login-card .dropdown-item:hover {
+        color: #e65c00;
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 0.5rem;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <h3 class="text-center mb-4 font-weight-bold">FOSSEE Workshop Login</h3>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-dismissible alert-danger">
+                            <button type="button" class="close" data-dismiss="alert">
+                                <i class="fa fa-close"></i>
+                            </button>
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">
+                            <i class="fa fa-close"></i>
+                        </button>
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Username :</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password :</label>
+                {{ form.password }}
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Sign in</button>
+        </form>
+
+        <div class="dropdown-divider" style="border-color: rgba(0,0,0,0.1)"></div>
+        <a class="dropdown-item mt-2" href="{% url 'workshop_app:register' %}">New around here? Sign up</a>
+        <a class="dropdown-item" href="{% url 'password_reset' %}">Forgot password?</a>
+    </div>
+</div>
+{% endblock %}

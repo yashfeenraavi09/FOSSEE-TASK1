@@ -1,0 +1,105 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %}
+ Workshop Statistics
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar with Teams -->
+        <div class="col-md-2">
+            <ul class="nav flex-column nav-pills list-group shadow-sm rounded">
+                {% for team in all_teams %}
+                    <li class="nav-item">
+                        <a href="{% url 'statistics_app:team' team.id %}" 
+                           class="nav-link list-group-item text-center">
+                            Team {{forloop.counter}}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center">No Teams Available</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="col-md-10">
+            <div class="card shadow-sm rounded">
+                <div class="card-header bg-white">
+                    <h4 class="text-orange fw-bold mb-0">Team Members Workshops</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart" height="140"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: #fff !important;
+    }
+
+    /* Sidebar styling */
+    .list-group-item {
+        border: 1px solid #f1f1f1;
+        transition: all 0.3s ease;
+        color: #e6851f;
+        font-weight: 500;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+
+    .list-group-item:hover, 
+    .list-group-item.active, 
+    .nav-link.active {
+        background-color: #e6851f !important;
+        color: #fff !important;
+        border-color: #e6851f !important;
+    }
+
+    .text-orange {
+        color: #e6851f;
+    }
+
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #f2f2f2;
+    }
+</style>
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{team_labels|safe}},
+            datasets: [{
+                data: {{ws_count|safe}},
+                label: "Team Members Workshops",
+                backgroundColor: '#e6851f',
+                borderColor: '#cf6d10',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: "#333" }
+                }
+            },
+            scales: {
+                x: { ticks: { color: "#333" } },
+                y: { ticks: { color: "#333" } }
+            }
+        }
+    });
+</script>
+{% endblock %}

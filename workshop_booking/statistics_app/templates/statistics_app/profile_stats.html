@@ -1,0 +1,168 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %}
+  Profile Statistics
+{% endblock %}
+
+{% block extra %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="{{URL_ROOT}}/static/workshop_app/js/bootstrap-3.3.7.min.js"></script>
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+			$("fieldset").controlgroup();
+		});
+
+		$(document).ready(function() {
+			$('input[type=radio]').change(function() {
+				if (this.value == "CP") {
+					$("#instructor_data").hide();
+					$("#coordinator_data").show();
+				} else {
+					$("#instructor_data").show();
+					$("#coordinator_data").hide();
+				}
+			});
+		});
+	</script>
+
+    <style>
+        body {
+            background: #fff !important;
+        }
+
+        fieldset label {
+            font-weight: 600;
+            margin-right: 15px;
+            color: #e6851f;
+        }
+
+        fieldset input[type=radio] {
+            margin-right: 6px;
+        }
+
+        /* Table styling */
+        table {
+            margin-top: 1.5rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        thead {
+            background: #fff8f2;
+        }
+        thead th {
+            color: #e6851f;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        tbody tr:hover {
+            background: #fff4e7;
+            transition: 0.3s ease;
+        }
+
+        /* Links inside table */
+        table a {
+            color: #e6851f;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        table a:hover {
+            color: #cf6d10;
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+	<div class="container">
+	 	<div class="row">
+			<div class="col-md-6 mb-3">
+				<fieldset data-mini="true">
+				    <label for="radio-1">Instructor Statistics</label>
+				    <input type="radio" name="radio-1" id="radio-1" value="IP">
+				    <label for="radio-2">Coordinator Statistics</label>
+				    <input type="radio" name="radio-1" id="radio-2" value="CP">
+				</fieldset>
+			</div>
+
+			<!-- Instructor Data Table -->
+			<div class="col-12">
+				<table class="table table-bordered align-middle" id="instructor_data" style="display: none">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Username</th>
+							<th>Full Name</th>
+							<th>Institute Name</th>
+							<th>Phone Number</th>
+							<th>Workshop Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% csrf_token %}
+						{% for profile_data in instructor_data %}
+							<tr>
+								<td>{{ forloop.counter }}</td>
+								<td>{{ profile_data.profile.user }}</td>
+								<td>{{ profile_data.profile.user.first_name }} {{ profile_data.profile.user.last_name }}</td>
+								<td>{{ profile_data.profile.institute }}</td>
+								<td>{{ profile_data.profile.phone_number }}</td>
+								<td>{{ profile_data.count }}</td>
+							</tr>
+						{% empty %}
+							<tr>
+								<td colspan="6" class="text-center text-muted">No instructor data available.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Coordinator Data Table -->
+			<div class="col-12">
+				<table class="table table-bordered align-middle" id="coordinator_data" style="display: none">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Name</th>
+							<th>Institute Name</th>
+							<th>Phone Number</th>
+							<th>Registration Date</th>
+							<th>Workshop Count</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% csrf_token %}
+						{% for profile_data in coordinator_data %}
+							{% if profile_data.count > 0 %}
+							<tr>
+								<td>{{ forloop.counter }}</td>
+								<td>
+									<a href="{{ URL_ROOT }}/view_comment_profile/{{ profile_data.profile.user.id }}">
+										{{ profile_data.profile.user.get_full_name }}
+									</a>
+								</td>
+								<td>{{ profile_data.profile.institute }}</td>
+								<td>{{ profile_data.profile.phone_number }}</td>
+								<td>{{ profile_data.profile.user.date_joined | date }}</td>
+								<td>{{ profile_data.count }}</td>
+							</tr>
+							{% endif %}
+						{% empty %}
+							<tr>
+								<td colspan="6" class="text-center text-muted">No coordinator data available.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

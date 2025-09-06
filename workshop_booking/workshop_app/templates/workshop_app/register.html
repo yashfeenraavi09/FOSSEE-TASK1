@@ -1,0 +1,55 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block content %}
+
+<style type="text/css">
+    label.required::after {
+        content: "*";
+        color: red;
+    }
+
+    .errorlist {
+        color: red;
+    }
+
+    .btn-primary {
+        background-color: #fd7e14;
+        border-color: #fd7e14;
+    }
+
+    .btn-primary:hover {
+        background-color: #e6851f;
+        border-color: #e6851f;
+        color: #fff;
+    }
+
+    .btn-outline-primary {
+        border-color: #fd7e14;
+        color: #fd7e14;
+    }
+    .btn-outline-primary:hover {
+        background-color: #fd7e14;
+        color: #fff;
+        border-color: #fd7e14;
+    }
+</style>
+
+<div class="container">
+    <br>
+    <h3>Coordinator Registration Form</h3>
+    <br>
+    <form action="" method="post">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            {{ form.as_table }}
+        </table>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+    <br>
+</div>
+{% endblock %}

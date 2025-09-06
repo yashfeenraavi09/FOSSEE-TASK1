@@ -1,0 +1,274 @@
+{% extends 'workshop_app/base.html' %}
+
+{% block title %} Profile {% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% if Workshops %}
+        <!-- Profile Info Card -->
+        <div class="card shadow-lg rounded-3 mb-5 border-0">
+            <div class="card-header bg-orange text-white py-3 d-flex align-items-center">
+                <i class="fa fa-user-circle fa-2x me-2"></i>
+                <h4 class="mb-0"> Profile Information</h4>
+            </div>
+            <div class="card-body px-4 py-5 text-center">
+                <!-- Profile Picture -->
+                <div class="mb-4">
+                    <img src="https://via.placeholder.com/120" alt="Profile Picture" 
+                         class="rounded-circle shadow-sm border border-3 border-orange" width="120" height="120">
+                </div>
+                <!-- Profile Details -->
+                <table class="table table-borderless w-75 mx-auto profile-table">
+                    <tbody>
+                        <tr><th>First Name</th><td>{{ coordinator_profile.user.first_name }}</td></tr>
+                        <tr><th>Last Name</th><td>{{ coordinator_profile.user.last_name }}</td></tr>
+                        <tr><th>Email</th><td>{{ coordinator_profile.user.email }}</td></tr>
+                        <tr><th>Institute</th><td>{{ coordinator_profile.user.profile.institute }}</td></tr>
+                        <tr><th>Phone</th><td>{{ coordinator_profile.user.profile.phone_number }}</td></tr>
+                        <tr><th>Department</th><td>{{ coordinator_profile.user.profile.department }}</td></tr>
+                        <tr><th>Location</th><td>{{ coordinator_profile.user.profile.location }}</td></tr>
+                        <tr><th>Position</th><td>{{ coordinator_profile.user.profile.position }}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Workshop Details -->
+        <div class="card shadow-lg rounded-3 border-0">
+            <div class="card-header bg-light py-3">
+                <h4 class="mb-0 text-orange"><i class="fa fa-graduation-cap"></i> Workshop Details</h4>
+            </div>
+            <div class="card-body px-4 py-4">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Instructor</th>
+                            <th>Date</th>
+                            <th>Workshop Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for workshop in Workshops %}
+                            <tr>
+                                {% if workshop.instructor %}
+                                    <td>{{ workshop.instructor }}</td>
+                                    <td>{{ workshop.date }}</td>
+                                    <td>{{ workshop.workshop_type }}</td>
+                                {% else %}
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td>{{ workshop.date }}</td>
+                                    <td>{{ workshop.workshop_type }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+       <!-- Update Form -->
+<div class="card shadow-lg rounded-3 border-0">
+    <div class="card-header bg-orange text-white py-3">
+        <h4 class="mb-0"><i class="fa fa-pencil"></i> Update Profile</h4>
+    </div>
+    <div class="card-body px-5 py-4">
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <!-- Show form errors -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    Please correct the errors below.
+                </div>
+            {% endif %}
+
+            <div class="row g-4">
+                <!-- Title -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Title</label>
+                    {{ form.title.errors }}
+                    <input type="text" name="{{ form.title.name }}" 
+                           value="{{ form.title.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- First Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">First Name</label>
+                    {{ form.first_name.errors }}
+                    <input type="text" name="{{ form.first_name.name }}" 
+                           value="{{ form.first_name.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Last Name</label>
+                    {{ form.last_name.errors }}
+                    <input type="text" name="{{ form.last_name.name }}" 
+                           value="{{ form.last_name.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Phone Number</label>
+                    {{ form.phone_number.errors }}
+                    <input type="text" name="{{ form.phone_number.name }}" 
+                           value="{{ form.phone_number.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Institute -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Institute</label>
+                    {{ form.institute.errors }}
+                    <input type="text" name="{{ form.institute.name }}" 
+                           value="{{ form.institute.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Department -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Department</label>
+                    {{ form.department.errors }}
+                    <input type="text" name="{{ form.department.name }}" 
+                           value="{{ form.department.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Position -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Position</label>
+                    {{ form.position.errors }}
+                    <input type="text" name="{{ form.position.name }}" 
+                           value="{{ form.position.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- Location -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">Location</label>
+                    {{ form.location.errors }}
+                    <input type="text" name="{{ form.location.name }}" 
+                           value="{{ form.location.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+
+                <!-- State -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary">State</label>
+                    {{ form.state.errors }}
+                    <input type="text" name="{{ form.state.name }}" 
+                           value="{{ form.state.value|default:'' }}" 
+                           class="form-control form-control-lg rounded-3 shadow-sm">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-5 d-flex justify-content-between">
+                <button class="btn btn-orange btn-lg px-4">
+                    <i class="fa fa-save"></i> Update
+                </button>
+                <a href="{% url 'workshop_app:index' %}" class="btn btn-outline-orange btn-lg px-4">
+                    <i class="fa fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+    {% endif %}
+</div>
+
+<style>
+    .form-control {
+    border-radius: 0.6rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #ff8b3e;
+    box-shadow: 0 0 6px rgba(255, 139, 62, 0.5);
+}
+
+    .bg-orange { background-color: #ff8b3e !important; }
+    .text-orange { color: #ff8b3e !important; }
+    .border-orange { border-color: #ff8b3e !important; }
+
+
+    .btn-orange {
+        background-color: #ff8b3e;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-orange:hover {
+        background-color: #e66f1f;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .btn-outline-orange {
+        border: 2px solid #ff8b3e;
+        color: #ff8b3e;
+        background: white;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-orange:hover {
+        background: #ff8b3e;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .card {
+        border-radius: 1rem;
+    }
+    .card-header h4 {
+        font-weight: 600;
+    }
+
+
+.profile-table {
+    border-collapse: separate;
+    border-spacing: 0 1rem; 
+    width: 100%;
+}
+
+.profile-table tr {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    display: table-row;
+}
+
+.profile-table th,
+.profile-table td {
+    padding: 1.2rem 1.5rem;
+    vertical-align: middle;
+}
+
+.profile-table th {
+    width: 25%;
+    text-align: left;
+    font-weight: 600;
+    color: #444;
+    background: #fafafa;
+    border-right: 1px solid #eee;
+    border-radius: 0.6rem 0 0 0.6rem;
+}
+
+.profile-table td {
+    font-weight: 500;
+    color: #222;
+    border-radius: 0 0.6rem 0.6rem 0;
+}
+
+
+</style>
+{% endblock %}
